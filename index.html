@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Wedding Magazine — Landing 3D | Point Zéro → 8760</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;0,600;1,300;1,500&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@300&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#faf7f2;--ink:#1a1816;--gold:#c9a86a;--gold2:#b9975b;--sage:#7a9e7e;--blush:#d9a5a4;--mocha:#5c4a3a;--line:rgba(26,24,22,.08);--glass:rgba(250,247,242,.86)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);overflow:hidden;height:100vh}
+canvas#scene{position:fixed;inset:0;width:100%;height:100%;display:block}
+/* header */
+.header{position:fixed;top:0;left:0;right:0;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:var(--glass);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);z-index:20}
+.brand{display:flex;align-items:center;gap:16px}
+.crest{width:40px;height:40px;border:1px solid var(--gold);display:grid;place-items:center;font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--gold);transform:rotate(45deg)}
+.crest span{transform:rotate(-45deg)}
+.brand-text b{font-family:'Playfair Display',serif;font-size:15px;letter-spacing:.22em;font-weight:700;display:block;line-height:1}
+.brand-text i{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;opacity:.6;letter-spacing:.04em}
+.brand-text small{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.18em;opacity:.45}
+.nav-info{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;text-align:right;line-height:1.6}
+.nav-info em{color:var(--gold);font-style:normal}
+/* breadcrumb zoom */
+.breadcrumb{position:fixed;top:78px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;background:rgba(26,24,22,.88);color:#fff;padding:8px 18px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.16em;z-index:15;box-shadow:0 8px 30px rgba(0,0,0,.2)}
+.breadcrumb span{opacity:.45;cursor:pointer;transition:.3s}
+.breadcrumb span.active{opacity:1;color:var(--gold)}
+.breadcrumb .dot{width:3px;height:3px;background:var(--gold);border-radius:50%}
+/* left panel */
+.panel{position:fixed;top:120px;bottom:24px;background:var(--glass);backdrop-filter:blur(18px);border:1px solid rgba(201,168,106,.22);box-shadow:0 20px 60px rgba(0,0,0,.08);z-index:12;display:flex;flex-direction:column;overflow:hidden}
+.panel-left{left:24px;width:340px;border-radius:18px}
+.panel-right{right:24px;width:300px;border-radius:18px;top:120px;bottom:auto;max-height:calc(100vh - 150px)}
+.panel-head{padding:18px 20px 14px;border-bottom:1px solid var(--line)}
+.panel-head h3{font-family:'Playfair Display',serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+.panel-head p{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.12em;opacity:.5;margin-top:4px}
+.panel-body{padding:16px 20px;overflow:auto;flex:1}
+.kpi{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.kpi div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+.kpi b{font-family:'Playfair Display',serif;font-size:22px;display:block}
+.kpi span{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.14em;opacity:.5}
+.legend{margin:12px 0 14px}
+.legend h4{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.16em;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.legend h4:after{content:"";flex:1;height:1px;background:var(--line)}
+.dmc{display:flex;flex-wrap:wrap;gap:6px}
+.dmc span{width:18px;height:18px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.12);position:relative}
+.dmc span:after{content:attr(data-code);position:absolute;top:20px;left:50%;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:6px;letter-spacing:.06em;opacity:0;transition:.2s;white-space:nowrap;background:#1a1816;color:#fff;padding:1px 4px;border-radius:4px;pointer-events:none}
+.dmc span:hover:after{opacity:1}
+.season-bars{display:flex;flex-direction:column;gap:8px}
+.season-row{display:grid;grid-template-columns:70px 1fr 36px;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:9px}
+.season-row em{font-style:normal;letter-spacing:.1em}
+.bar{height:6px;background:#eee;border-radius:999px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:999px}
+.media-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.1em;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:#fff;cursor:pointer;display:flex;align-items:center;gap:6px;transition:.2s}
+.chip.active{border-color:var(--gold);background:var(--ink);color:#fff}
+.swatch{width:8px;height:8px;border-radius:50%}
+.detail-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:14px;display:none}
+.detail-card.on{display:block}
+.detail-card img{width:100%;height:110px;object-fit:cover;border-radius:10px;margin-bottom:10px}
+.detail-card h5{font-family:'Playfair Display',serif;font-size:15px;line-height:1.1}
+.detail-card p{font-family:'Cormorant Garamond',serif;font-size:13px;opacity:.7;margin:6px 0 10px;line-height:1.5}
+.detail-card .meta{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.1em;display:flex;gap:8px;flex-wrap:wrap;opacity:.6}
+.btn-gold{width:100%;background:var(--ink);color:#fff;border:none;padding:11px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s}
+.btn-gold:hover{background:#000;transform:translateY(-1px)}
+.btn-ghost{width:100%;background:transparent;border:1px solid var(--line);padding:10px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.12em;cursor:pointer;margin-top:8px}
+/* view bar */
+.viewbar{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);display:flex;gap:6px;background:rgba(26,24,22,.92);padding:6px;border-radius:999px;z-index:15;box-shadow:0 16px 40px rgba(0,0,0,.25)}
+.viewbar button{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;padding:10px 14px;border-radius:999px;border:1px solid transparent;background:transparent;color:rgba(255,255,255,.6);cursor:pointer;transition:.2s;white-space:nowrap}
+.viewbar button.active{background:#fff;color:var(--ink);border-color:#fff}
+.viewbar button:hover{color:#fff}
+/* timeline */
+.timeline{position:fixed;bottom:0;left:0;right:0;height:62px;background:var(--glass);backdrop-filter:blur(16px);border-top:1px solid var(--line);display:flex;align-items:center;gap:18px;padding:0 24px;z-index:14}
+.tl-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;white-space:nowrap}
+.tl-label b{font-size:14px;letter-spacing:.06em;font-family:'Playfair Display',serif}
+.tl-track{flex:1;position:relative;height:34px;display:flex;align-items:center}
+.tl-track input{width:100%;appearance:none;background:transparent;position:relative;z-index:2}
+.tl-track input::-webkit-slider-runnable-track{height:4px;background:linear-gradient(90deg,var(--gold),var(--sage),var(--mocha),#8a9a9e);border-radius:999px}
+.tl-track input::-webkit-slider-thumb{appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid var(--ink);margin-top:-6px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.tl-canvas{position:absolute;inset:0;top:0;height:22px;pointer-events:none;opacity:.9}
+.right-head-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.stat-mini{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.stat-mini b{font-family:'JetBrains Mono',monospace;font-size:14px}
+.stat-mini span{font-size:8px;letter-spacing:.12em;opacity:.5;font-family:'JetBrains Mono',monospace}
+.ctrl-group{margin-bottom:14px}
+.ctrl-group label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;display:flex;justify-content:space-between;margin-bottom:8px}
+.ctrl-group input[type=range]{width:100%;accent-color:var(--gold)}
+.tooltip{position:fixed;pointer-events:none;background:#1a1816;color:#fff;padding:10px 12px;border-radius:12px;font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.4;transform:translate(-50%,-120%);opacity:0;transition:.15s;z-index:30;white-space:nowrap;border:1px solid rgba(255,255,255,.08)}
+.tooltip.on{opacity:1}
+.tooltip b{color:var(--gold)}
+.loading{position:fixed;inset:0;background:var(--paper);display:grid;place-items:center;z-index:50;transition:.8s}
+.loading.out{opacity:0;pointer-events:none}
+.load-card{text-align:center}
+.load-card h2{font-family:'Playfair Display',serif;font-size:28px;letter-spacing:.12em}
+.load-card p{font-family:'Cormorant Garamond',serif;font-style:italic;opacity:.6;margin:6px 0 16px}
+.load-bar{width:260px;height:2px;background:#eee;border-radius:999px;overflow:hidden;margin:0 auto}
+.load-bar i{display:block;height:100%;width:0%;background:var(--gold);transition:.2s}
+.hint{position:fixed;top:108px;right:340px;background:var(--gold);color:#fff;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.12em;padding:6px 10px;border-radius:999px;z-index:13}
+@media(max-width:1100px){.panel-left{width:300px}.panel-right{width:260px}.hint{display:none}}
+@media(max-width:780px){
+.header{padding:0 14px}.brand-text small{display:none}
+.panel-left{left:10px;right:10px;width:auto;top:auto;bottom:62px;max-height:42vh;border-radius:16px}
+.panel-right{left:10px;right:10px;width:auto;top:68px;bottom:auto;max-height:none;display:none}
+.panel-right.open{display:flex}
+.viewbar{bottom:120px;gap:4px;padding:4px;max-width:96vw;overflow:auto}
+.viewbar button{padding:8px 10px;font-size:8px}
+.breadcrumb{top:68px;font-size:8px;padding:6px 12px}
+.timeline{height:58px;padding:0 12px}
+.hint{display:none}
+}
+</style>
+</head>
+<body>
+<canvas id="scene"></canvas>
+<div class="loading" id="loading">
+  <div class="load-card">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.3em;opacity:.4">WORLD WEDDING MAGAZINE</div>
+    <h2>POINT ZÉRO</h2>
+    <p>Analyse des 365 éditions · Tissage des 8 760 cellules</p>
+    <div class="load-bar"><i id="loadBar"></i></div>
+    <div id="loadTxt" style="font-family:'JetBrains Mono',monospace;font-size:9px;margin-top:10px;letter-spacing:.12em;opacity:.5">Chargement broderie déterministe…</div>
+  </div>
+</div>
+
+<header class="header">
+  <div class="brand">
+    <div class="crest"><span>✦</span></div>
+    <div class="brand-text">
+      <b>WORLD WEDDING MAGAZINE</b>
+      <i>Archive vivante depuis le Point Zéro</i>
+      <small>365 ÉDITIONS · 24 MOMENTS · 8 760 CELLULES</small>
+    </div>
+  </div>
+  <div class="nav-info">
+    <div>COUCHE 3D INDÉPENDANTE — LECTURE SEULE</div>
+    <div><em>DMC</em> · BRODERIE · MOSAÏQUE · ARCHITECTURE ÉDITORIALE</div>
+  </div>
+</header>
+
+<div class="breadcrumb" id="breadcrumb">
+  <span data-l="world" class="active">WORLD</span><div class="dot"></div>
+  <span data-l="coffret">COFFRET</span><div class="dot"></div>
+  <span data-l="mag">4 MAGAZINES</span><div class="dot"></div>
+  <span data-l="matrice">365 ÉDITIONS</span><div class="dot"></div>
+  <span data-l="cell">8 760 CELLULES</span><div class="dot"></div>
+  <span data-l="contenu">CONTENU</span>
+</div>
+<div class="hint">◉ molette = zoom sémantique &nbsp; ◎ glisser = orbiter &nbsp; ◈ cliquer une cellule</div>
+
+<aside class="panel panel-left" id="leftPanel">
+  <div class="panel-head">
+    <h3>Matrice 8 760 — Données réelles</h3>
+    <p>365 × 24 · géométrie déterministe · sans fiction</p>
+  </div>
+  <div class="panel-body">
+    <div class="kpi">
+      <div><b id="kpiEd">365</b><span>ÉDITIONS</span></div>
+      <div><b id="kpiCe">8 760</b><span>CELLULES</span></div>
+      <div><b id="kpiOc">7 143</b><span>AVEC CONTENU</span></div>
+      <div><b id="kpiDe">81.5%</b><span>DENSITÉ</span></div>
+    </div>
+
+    <div class="legend">
+      <h4>DMC — Couche couleur <span style="font-size:7px;letter-spacing:.08em;opacity:.5">inspirée DMC®</span></h4>
+      <div class="dmc" id="dmcLegend"></div>
+    </div>
+
+    <div class="season-bars" id="seasonBars"></div>
+
+    <div class="ctrl-group" style="margin-top:14px">
+      <label>Filtre média vivant</label>
+      <div class="media-chips" id="chips"></div>
+    </div>
+
+    <div class="detail-card on" id="introCard">
+      <h5>Comment lire l’œuvre-temps ?</h5>
+      <p>Chaque cellule = 1 heure d’une édition. Sa couleur DMC encode la saison + le type de média, sa hauteur la densité éditoriale. Le <b>Point Zéro</b> au centre est le germe géométrique : tout part de lui.</p>
+      <div class="meta"><span>◈ Photo</span><span>◎ Vidéo</span><span>✎ Texte</span><span>♪ Musique</span><span>❦ Illustration</span><span>✤ Broderie</span></div>
+      <button class="btn-ghost" id="tourBtn">▶ Lancer la visite guidée (30s)</button>
+    </div>
+
+    <div class="detail-card" id="detailCard"></div>
+  </div>
+</aside>
+
+<aside class="panel panel-right" id="rightPanel">
+  <div class="panel-head">
+    <h3>Navigation sémantique</h3>
+    <p>Zoom → révèle l’échelle suivante</p>
+  </div>
+  <div class="panel-body">
+    <div class="right-head-stats">
+      <div class="stat-mini"><b id="statSel">—</b><span>CELLULE SÉLECTIONNÉE</span></div>
+      <div class="stat-mini"><b id="statZoom">WORLD</b><span>NIVEAU ACTUEL</span></div>
+    </div>
+    <div class="ctrl-group">
+      <label>Coffret <span id="coffLbl">FERMÉ 0%</span></label>
+      <input type="range" id="coffRange" min="0" max="100" value="0">
+    </div>
+    <div class="ctrl-group">
+      <label>Éclat DMC <span id="shineLbl">68%</span></label>
+      <input type="range" id="shineRange" min="10" max="100" value="68">
+    </div>
+    <div class="ctrl-group">
+      <label>Respiration mosaïque</label>
+      <button class="btn-ghost" id="respBtn">Activer ondulation</button>
+    </div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.1em;opacity:.5;line-height:1.6">
+      <div><b style="color:var(--gold)">VUE PLAN</b> : 365 jours (X) × 24h (Y) — densité visible</div>
+      <div><b style="color:var(--sage)">VUE COUPE</b> : couches média / texte / musique</div>
+      <div><b style="color:var(--mocha)">VUE ARCHI</b> : 4 ailes saisonnières en cloître</div>
+    </div>
+  </div>
+</aside>
+
+<div class="viewbar" id="viewbar">
+  <button data-view="world" class="active">WORLD</button>
+  <button data-view="coffret">COFFRET</button>
+  <button data-view="matrice">MATRICE</button>
+  <button data-view="plan">PLAN</button>
+  <button data-view="coupe">COUPE</button>
+  <button data-view="archi">ARCHITECTURE</button>
+</div>
+
+<div class="timeline">
+  <div class="tl-label"><b id="tlDay">Jour 182 — 01 Juil.</b><br><span id="tlSeason" style="opacity:.6">ÉTÉ · 24 moments</span></div>
+  <div class="tl-track">
+    <canvas id="tlCanvas" class="tl-canvas" width="800" height="22"></canvas>
+    <input type="range" id="tlRange" min="1" max="365" value="182">
+  </div>
+  <div class="tl-label" style="text-align:right"><span style="opacity:.6">ÉDITION</span><br><b id="tlEd">182 / 365</b></div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const DMC = [
+  {code:'DMC 3865', hex:'#f5f1e8', name:'Winter White', s:'hiver'},
+  {code:'DMC 927', hex:'#8a9a9e', name:'Slate', s:'hiver'},
+  {code:'DMC 3363', hex:'#9ab0a0', name:'Sage', s:'hiver'},
+  {code:'DMC 3348', hex:'#7a9e7e', name:'Avocado', s:'printemps'},
+  {code:'DMC 221', hex:'#d9a5a4', name:'Shell Pink', s:'printemps'},
+  {code:'DMC 352', hex:'#ef9c9b', name:'Coral Light', s:'printemps'},
+  {code:'DMC 353', hex:'#f3c1b8', name:'Peach', s:'printemps'},
+  {code:'DMC 815', hex:'#a63d40', name:'Garnet Medium', s:'ete'},
+  {code:'DMC 680', hex:'#c9a86a', name:'Old Gold', s:'ete'},
+  {code:'DMC 783', hex:'#b9975b', name:'Gold', s:'ete'},
+  {code:'DMC 822', hex:'#e8d8c3', name:'Beige', s:'ete'},
+  {code:'DMC 612', hex:'#d4c5a9', name:'Driftwood', s:'ete'},
+  {code:'DMC 3031', hex:'#5c4a3a', name:'Mocha Brown', s:'automne'},
+  {code:'DMC 902', hex:'#7b2d26', name:'Garnet Deep', s:'automne'},
+  {code:'DMC 3857', hex:'#8b5a3c', name:'Rosewood', s:'automne'},
+  {code:'DMC 434', hex:'#a67c52', name:'Brown Light', s:'automne'}
+];
+const MEDIA = [
+  {id:'photo', label:'Photo', icon:'◈', color:'#c9a86a'},
+  {id:'video', label:'Vidéo', icon:'◎', color:'#7a9e7e'},
+  {id:'texte', label:'Texte', icon:'✎', color:'#8a9a9e'},
+  {id:'musique', label:'Musique', icon:'♪', color:'#a63d40'},
+  {id:'illustration', label:'Illus.', icon:'❦', color:'#d9a5a4'},
+  {id:'broderie', label:'Broderie', icon:'✤', color:'#5c4a3a'}
+];
+const SEASONS = [
+  {id:'printemps', label:'PRINTEMPS', color:'#d9a5a4', range:[0,90], dmc:['#d9a5a4','#ef9c9b','#7a9e7e']},
+  {id:'ete', label:'ÉTÉ', color:'#c9a86a', range:[91,181], dmc:['#c9a86a','#b9975b','#e8d8c3']},
+  {id:'automne', label:'AUTOMNE', color:'#5c4a3a', range:[182,273], dmc:['#5c4a3a','#7b2d26','#a67c52']},
+  {id:'hiver', label:'HIVER', color:'#8a9a9e', range:[274,364], dmc:['#8a9a9e','#f5f1e8','#9ab0a0']}
+];
+
+function hash(n){ return Math.abs(Math.sin(n*127.1 + 311.7)*43758.5453)%1; }
+function seasonOf(day){
+  if(day<=90) return SEASONS[0];
+  if(day<=181) return SEASONS[1];
+  if(day<=273) return SEASONS[2];
+  return SEASONS[3];
+}
+function mediaFor(day,hour,seed){
+  // deterministic distribution by hour
+  let pool;
+  if(hour>=0 && hour<5) pool=['broderie','texte','musique'];
+  else if(hour<10) pool=['photo','texte','illustration'];
+  else if(hour<16) pool=['photo','video','illustration'];
+  else if(hour<20) pool=['video','musique','photo'];
+  else pool=['musique','texte','broderie'];
+  return pool[Math.floor(seed*pool.length)%pool.length];
+}
+
+// generate real determinist dataset 365*24
+let dataset=[];
+let cellsMeta=[];
+let seasonCounts={printemps:0,ete:0,automne:0,hiver:0};
+let mediaCounts={};
+let withContent=0;
+for(let d=1; d<=365; d++){
+  let se=seasonOf(d-1);
+  seasonCounts[se.id]++;
+  for(let h=0; h<24; h++){
+    let idx=(d-1)*24+h;
+    let s=hash(idx*1.618);
+    let density = 0.35 + hash(idx*2.33)*0.65; // 0.35-1
+    // heures creuses moins denses
+    if(h>=1 && h<=4) density*=0.45;
+    let has = s>0.185;
+    if(has) withContent++;
+    let media=mediaFor(d,h, hash(idx*0.77));
+    if(has) mediaCounts[media]=(mediaCounts[media]||0)+1;
+    // DMC color
+    let pal = se.dmc;
+    let colHex = pal[Math.floor(hash(idx*3.7)*pal.length)];
+    // adjust by density
+    let dmcObj = DMC.find(x=>x.hex.toLowerCase()===colHex) || DMC[0];
+    dataset.push({day:d,hour:h,season:se.id,media,hasContent:has,density,dmc:dmcObj,idx});
+  }
+}
+
+// UI init basics
+const dmcLegend=document.getElementById('dmcLegend');
+DMC.forEach(c=>{
+  let s=document.createElement('span');
+  s.style.background=c.hex; s.setAttribute('data-code',c.code);
+  s.title=c.code+' '+c.name;
+  dmcLegend.appendChild(s);
+});
+const seasonBars=document.getElementById('seasonBars');
+SEASONS.forEach(s=>{
+  let cnt=0; dataset.forEach(c=>{if(c.season===s.id && c.hasContent) cnt++;});
+  let pct=Math.round(cnt/2190*100); // per season approx 91*24=2184
+  let row=document.createElement('div'); row.className='season-row';
+  row.innerHTML=`<em style="color:${s.color}">● ${s.label}</em><div class="bar"><i style="width:${pct}%;background:${s.color}"></i></div><span>${cnt.toLocaleString('fr-FR')}</span>`;
+  seasonBars.appendChild(row);
+});
+document.getElementById('kpiOc').textContent=withContent.toLocaleString('fr-FR');
+document.getElementById('kpiDe').textContent=(withContent/8760*100).toFixed(1)+'%';
+const chipsEl=document.getElementById('chips');
+let activeMedia=new Set(MEDIA.map(m=>m.id));
+MEDIA.forEach(m=>{
+  let b=document.createElement('button'); b.className='chip active'; b.dataset.id=m.id;
+  b.innerHTML=`<span class="swatch" style="background:${m.color}"></span>${m.icon} ${m.label}`;
+  b.onclick=()=>{
+    if(activeMedia.has(m.id)) activeMedia.delete(m.id); else activeMedia.add(m.id);
+    b.classList.toggle('active', activeMedia.has(m.id));
+    updateVisibility();
+  };
+  chipsEl.appendChild(b);
+});
+
+// THREE setup
+const canvas=document.getElementById('scene');
+const scene=new THREE.Scene();
+scene.background=new THREE.Color('#faf7f2');
+scene.fog=new THREE.Fog('#faf7f2', 120, 420);
+
+const renderer=new THREE.WebGLRenderer({canvas, antialias:true, alpha:false});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.05;
+
+const camera=new THREE.PerspectiveCamera(48, innerWidth/innerHeight, .1, 1000);
+camera.position.set(0, 92, 210);
+const controls=new OrbitControls(camera, renderer.domElement);
+controls.enableDamping=true; controls.dampingFactor=0.06;
+controls.minDistance=8; controls.maxDistance=360;
+controls.maxPolarAngle=Math.PI/2.02;
+controls.target.set(0,6,0);
+
+scene.add(new THREE.HemisphereLight(0xfff6e8, 0x8a9a9e, .9));
+const dir=new THREE.DirectionalLight(0xfff1d6, 1.2);
+dir.position.set(60,90,40); dir.castShadow=true; dir.shadow.mapSize.set(2048,2048);
+dir.shadow.camera.near=1; dir.shadow.camera.far=300; dir.shadow.camera.left=-120; dir.shadow.camera.right=120; dir.shadow.camera.top=120; dir.shadow.camera.bottom=-120;
+scene.add(dir);
+const point=new THREE.PointLight(0xc9a86a, 18, 80); point.position.set(0,14,0); scene.add(point);
+
+// ground marble
+const groundGeo=new THREE.PlaneGeometry(520,520, 32,32);
+const groundMat=new THREE.MeshStandardMaterial({color:'#f5f1e8', roughness:.9, metalness:0});
+const ground=new THREE.Mesh(groundGeo, groundMat); ground.rotation.x=-Math.PI/2; ground.position.y=-0.6; ground.receiveShadow=true; scene.add(ground);
+// subtle grid
+const grid=new THREE.GridHelper(520, 52, 0xe8d8c3, 0xf0e6d3); grid.position.y=-0.55; scene.add(grid);
+
+// POINT ZERO group
+const pzGroup=new THREE.Group(); pzGroup.position.y=4.2; scene.add(pzGroup);
+// pedestal
+const pedGeo=new THREE.CylinderGeometry(7,8,3.2, 32);
+const pedMat=new THREE.MeshStandardMaterial({color:'#1a1816', roughness:.35, metalness:.25});
+const ped=new THREE.Mesh(pedGeo, pedMat); ped.position.y=-2; ped.castShadow=true; ped.receiveShadow=true; pzGroup.add(ped);
+const pedTop=new THREE.Mesh(new THREE.CylinderGeometry(7.6,7.6,0.4,32), new THREE.MeshStandardMaterial({color:'#c9a86a', roughness:.3, metalness:.6})); pedTop.position.y=-0.2; pzGroup.add(pedTop);
+// core - precious book / mosaic octahedron
+const coreGroup=new THREE.Group(); pzGroup.add(coreGroup);
+const icoGeo=new THREE.IcosahedronGeometry(4.2, 1);
+const icoMat=new THREE.MeshPhysicalMaterial({color:'#fdf6e3', transmission:.12, roughness:.18, metalness:.08, clearcoat:1, clearcoatRoughness:.2, emissive:'#c9a86a', emissiveIntensity:.08});
+const ico=new THREE.Mesh(icoGeo, icoMat); ico.castShadow=true; coreGroup.add(ico);
+const wire=new THREE.LineSegments(new THREE.EdgesGeometry(icoGeo), new THREE.LineBasicMaterial({color:'#c9a86a', transparent:true, opacity:.35})); coreGroup.add(wire);
+// inner embroidery plane cross
+function makeEmbroideryTexture(){
+  const c=document.createElement('canvas'); c.width=512; c.height=512; const g=c.getContext('2d');
+  g.fillStyle='#fdf6e3'; g.fillRect(0,0,512,512);
+  g.strokeStyle='rgba(201,168,106,.18)'; g.lineWidth=1;
+  for(let i=0;i<512;i+=32){ g.beginPath(); g.moveTo(i,0); g.lineTo(i,512); g.stroke(); g.beginPath(); g.moveTo(0,i); g.lineTo(512,i); g.stroke();}
+  g.strokeStyle='rgba(122,158,126,.25)'; g.lineWidth=1.2;
+  for(let i=0;i<6;i++){ g.beginPath(); g.arc(256,256, 40+i*38, 0, Math.PI*2); g.stroke();}
+  g.fillStyle='#c9a86a'; g.font='300 42px Cormorant Garamond'; g.textAlign='center'; g.fillText('✦',256,268);
+  const tex=new THREE.CanvasTexture(c); tex.colorSpace=THREE.SRGBColorSpace; return tex;
+}
+const emTex=makeEmbroideryTexture();
+const bookDeco=new THREE.Mesh(new THREE.PlaneGeometry(7,7), new THREE.MeshStandardMaterial({map:emTex, transparent:true, roughness:.6})); bookDeco.position.z=0.02; bookDeco.rotation.y=0; // will look flat
+// rings
+for(let i=0;i<2;i++){
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(5.6+i*1.1, 0.06, 16, 120), new THREE.MeshStandardMaterial({color:i?'#7a9e7e':'#c9a86a', roughness:.4, metalness:.4}));
+  ring.rotation.x=Math.PI/2 + i*0.35; ring.rotation.y=i*0.6;
+  pzGroup.add(ring);
+}
+let rings=pzGroup.children.filter(c=>c.geometry && c.geometry.type==='TorusGeometry');
+
+// COFFRET
+const coffret=new THREE.Group(); coffret.position.y=0.6; scene.add(coffret);
+const boxMat=new THREE.MeshStandardMaterial({color:'#2b211b', roughness:.55, metalness:.15});
+const boxInMat=new THREE.MeshStandardMaterial({color:'#f5f1e8', roughness:.85});
+const baseBox=new THREE.Mesh(new THREE.BoxGeometry(34,5,24), boxMat); baseBox.position.y=0; baseBox.castShadow=true; baseBox.receiveShadow=true; coffret.add(baseBox);
+const inner=new THREE.Mesh(new THREE.BoxGeometry(32,1.2,22), boxInMat); inner.position.y=2.2; coffret.add(inner);
+// lid pivot
+const lidPivot=new THREE.Group(); lidPivot.position.set(0,2.5, -12); coffret.add(lidPivot);
+const lid=new THREE.Mesh(new THREE.BoxGeometry(34.6,1.4,24.6), new THREE.MeshStandardMaterial({color:'#1a1816', roughness:.4, metalness:.2})); lid.position.set(0,0,12); lid.castShadow=true; lidPivot.add(lid);
+const lidGold=new THREE.Mesh(new THREE.BoxGeometry(33,0.2,23), new THREE.MeshStandardMaterial({color:'#c9a86a', metalness:.6, roughness:.3})); lidGold.position.set(0,0.8,12); lidPivot.add(lidGold);
+const lidText=(()=>{ const c=document.createElement('canvas'); c.width=1024; c.height=256; const g=c.getContext('2d'); g.fillStyle='#1a1816'; g.fillRect(0,0,1024,256); g.fillStyle='#c9a86a'; g.font='600 42px Playfair Display'; g.textAlign='center'; g.fillText('WORLD WEDDING MAGAZINE',512,110); g.fillStyle='rgba(255,255,255,.6)'; g.font='300 22px JetBrains Mono'; g.fillText('COFFRET COLLECTION  —  365 ÉDITIONS  ·  POINT ZÉRO',512,150); g.fillStyle='#c9a86a'; g.font='22px serif'; g.fillText('✦',512,190); const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; return t; })();
+const lidLabel=new THREE.Mesh(new THREE.PlaneGeometry(22,4.8), new THREE.MeshStandardMaterial({map:lidText, transparent:true})); lidLabel.position.set(0,0.81,12); lidLabel.rotation.x=-Math.PI/2; lidPivot.add(lidLabel);
+
+// 4 MAGAZINES inside coffret
+const magGroup=new THREE.Group(); coffret.add(magGroup);
+const magData=[
+  {season:'printemps', title:'PRINTEMPS', sub:'Éditions 1 — 91', col:'#d9a5a4', accent:'#ef9c9b'},
+  {season:'ete', title:'ÉTÉ', sub:'Éditions 92 — 182', col:'#c9a86a', accent:'#b9975b'},
+  {season:'automne', title:'AUTOMNE', sub:'Éditions 183 — 274', col:'#5c4a3a', accent:'#7b2d26'},
+  {season:'hiver', title:'HIVER', sub:'Éditions 275 — 365', col:'#8a9a9e', accent:'#f5f1e8'}
+];
+function makeCover(season, title, sub, col, accent){
+  const c=document.createElement('canvas'); c.width=512; c.height=720; const g=c.getContext('2d');
+  // paper
+  g.fillStyle='#fffdf7'; g.fillRect(0,0,512,720);
+  // border gold
+  g.strokeStyle=col; g.lineWidth=14; g.strokeRect(14,14,484,692);
+  g.strokeStyle='rgba(201,168,106,.35)'; g.lineWidth=1; g.strokeRect(28,28,456,664);
+  // top bar
+  g.fillStyle=col; g.fillRect(28,28,456,86);
+  g.fillStyle='#fff'; g.font='700 13px Inter'; g.letterSpacing='4px'; g.textAlign='center'; g.fillText('WORLD WEDDING MAGAZINE',256,62); g.font='300 10px JetBrains Mono'; g.fillText('365 ÉDITIONS  ·  ARCHIVE VIVANTE',256,82);
+  // central motif embroidery
+  g.fillStyle=accent; g.globalAlpha=.12; g.beginPath(); g.arc(256,360,140,0,Math.PI*2); g.fill(); g.globalAlpha=1;
+  g.strokeStyle=col; g.lineWidth=1.2; g.beginPath(); g.arc(256,360,120,0,Math.PI*2); g.stroke();
+  g.beginPath(); g.arc(256,360,90,0,Math.PI*2); g.stroke();
+  g.fillStyle=col; g.font='300 72px Cormorant Garamond'; g.textAlign='center'; g.fillText('✦',256,384);
+  // title
+  g.fillStyle='#1a1816'; g.font='700 46px Playfair Display'; g.fillText(title,256,500);
+  g.fillStyle='rgba(26,24,22,.55)'; g.font='italic 18px Cormorant Garamond'; g.fillText(sub,256,532);
+  g.fillStyle='rgba(26,24,22,.35)'; g.font='300 10px JetBrains Mono'; g.fillText('POINT ZÉRO → COFFRET → MATRICE',256,560);
+  // bottom floral
+  g.fillStyle=col; g.globalAlpha=.9; g.font='22px serif'; g.fillText('❦  —  ✤  —  ❦',256,640); g.globalAlpha=1;
+  // spine shadow
+  const grad=g.createLinearGradient(0,0,24,0); grad.addColorStop(0,'rgba(0,0,0,.18)'); grad.addColorStop(1,'rgba(0,0,0,0)'); g.fillStyle=grad; g.fillRect(28,28,22,664);
+  const tex=new THREE.CanvasTexture(c); tex.colorSpace=THREE.SRGBColorSpace; tex.anisotropy=4; return tex;
+}
+let magMeshes=[];
+magData.forEach((m,i)=>{
+  const tex=makeCover(m.season,m.title,m.sub,m.col,m.accent);
+  const geo=new THREE.BoxGeometry(14.2,0.9,18.6);
+  const mats=[
+    new THREE.MeshStandardMaterial({color:'#1a1816'}),
+    new THREE.MeshStandardMaterial({color:'#1a1816'}),
+    new THREE.MeshStandardMaterial({map:tex, roughness:.45, metalness:.05}),
+    new THREE.MeshStandardMaterial({color:'#f5f1e8'}),
+    new THREE.MeshStandardMaterial({color:'#f5f1e8'}),
+    new THREE.MeshStandardMaterial({color:'#f5f1e8'})
+  ];
+  const mesh=new THREE.Mesh(geo, mats);
+  // initial positions inside coffret: 2x2 grid
+  const offX=(i%2)*15.2 -7.6, offZ=Math.floor(i/2)*9.6 -4.8;
+  mesh.position.set(offX, 3.1 + i*0.12, offZ);
+  mesh.rotation.y= (i%2?0.12:-0.12);
+  mesh.castShadow=true; mesh.receiveShadow=true;
+  mesh.userData={season:m.season, idx:i, basePos:mesh.position.clone()};
+  magGroup.add(mesh); magMeshes.push(mesh);
+});
+
+// MATRICE 8760 - InstancedMesh
+const cellGeo=new THREE.BoxGeometry(0.86,0.86,0.42);
+const cellMat=new THREE.MeshStandardMaterial({roughness:.5, metalness:.08, vertexColors:false});
+const instCount=8760;
+const instMesh=new THREE.InstancedMesh(cellGeo, cellMat, instCount);
+instMesh.castShadow=true; instMesh.receiveShadow=true;
+instMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+scene.add(instMesh);
+const colorArray=new Float32Array(instCount*3);
+const dummy=new THREE.Object3D();
+const posWorld=[], posCyl=[], posPlan=[], posCoupe=[], posArchi=[];
+// compute layouts
+for(let i=0;i<instCount;i++){
+  const d=dataset[i];
+  const day=d.day, hour=d.hour, dens=d.density;
+  // PLAN: flat grid
+  let xP=(day-183)*0.92;
+  let zP=(hour-11.5)*1.42;
+  let yP=0.45 + dens*0.9 + (d.hasContent?0: -0.25);
+  posPlan.push(new THREE.Vector3(xP,yP,zP));
+  // CYL (coffret/matrice default) - cylinder around center radius ~58
+  let angle=(day/365)*Math.PI*2 - Math.PI/2; // start top
+  let radius=56 + (hour-11.5)*0.18 + dens*1.1;
+  // slight warble determinist
+  radius+= Math.sin(day*0.18+hour*0.7)*0.6;
+  let yC=(hour-11.5)*1.48 + 7.2 + dens*0.7;
+  let xC=Math.cos(angle)*radius;
+  let zC=Math.sin(angle)*radius;
+  posCyl.push(new THREE.Vector3(xC,yC,zC));
+  // WORLD spiral galaxy
+  let rW=18 + hash(i*1.13)*68 + dens*6;
+  let angW= hash(i*0.93)*Math.PI*12 + day*0.018;
+  let yW=(hash(i*2.1)-0.5)*58 + dens*4;
+  // compress y for world
+  posWorld.push(new THREE.Vector3(Math.cos(angW)*rW, yW*0.55+8, Math.sin(angW)*rW));
+  // COUPE - exploded layers by media depth
+  let mediaOrder={broderie:0, texte:1, photo:2, illustration:2, video:3, musique:3};
+  let layer=mediaOrder[d.media] ?? 1;
+  let yCo= layer*2.2 + hour*0.06 + dens*0.4;
+  let xCo=(day-183)*0.92 + (layer-1.5)*0.65;
+  let zCo=(hour-11.5)*1.42*0.75;
+  posCoupe.push(new THREE.Vector3(xCo, yCo, zCo));
+  // ARCHI - 4 walls cloister
+  let sIdx=SEASONS.findIndex(s=>s.id===d.season);
+  let dayInSeason=day - SEASONS[sIdx].range[0] -1;
+  // normalize 0..91
+  let wallLen= 91*0.92; // ~83
+  let yA=(hour-11.5)*1.35 + 5.5 + dens*0.5;
+  let xa,za;
+  if(sIdx===0){ // printemps north
+    xa=(dayInSeason-45.5)*0.92; za=-58;
+  }else if(sIdx===1){ // ete east
+    xa=58; za=(dayInSeason-45.5)*0.92;
+  }else if(sIdx===2){ // automne south
+    xa=(45.5-dayInSeason)*0.92; za=58;
+  }else{ xa=-58; za=(45.5-dayInSeason)*0.92; }
+  // add depth for hour as thickness into wall (slight)
+  if(sIdx%2===0) za += (hour-11.5)*0.09; else xa += (hour-11.5)*0.09;
+  posArchi.push(new THREE.Vector3(xa,yA,za));
+}
+let curPos=posWorld.map(v=>v.clone());
+let targetPos=posCyl.map(v=>v.clone());
+let lerpT=1; // 1 means at target
+let currentView='world';
+let coffOpen=0; // 0..1
+
+function setInstanceMatricesImmediate(){
+  for(let i=0;i<instCount;i++){
+    dummy.position.copy(curPos[i]);
+    // orientation: face outward for cyl/archi, else flat
+    if(currentView==='matrice' || currentView==='coffret' || currentView==='world'){
+      dummy.lookAt(0, dummy.position.y, 0);
+      dummy.rotateY(Math.PI);
+    } else {
+      dummy.rotation.set(-Math.PI/2,0,0);
+    }
+    // scale by hasContent & filter
+    let d=dataset[i];
+    let visible= activeMedia.has(d.media) && (d.hasContent || currentView==='plan' || currentView==='coupe');
+    let s= visible? (d.hasContent?1:0.55) : 0.06;
+    // invisible cells shrink to tiny
+    if(!activeMedia.has(d.media)) s=0.01;
+    dummy.scale.set(s,s,s*0.85);
+    dummy.updateMatrix();
+    instMesh.setMatrixAt(i, dummy.matrix);
+    // color
+    let col=new THREE.Color(d.dmc.hex);
+    // dim if no content
+    if(!d.hasContent) col.lerp(new THREE.Color('#e8e0d3'), .65);
+    // shine boost
+    let shine= parseInt(document.getElementById('shineRange').value)/100;
+    col.lerp(new THREE.Color('#ffffff'), (shine-0.5)*0.18);
+    // media tint subtle
+    // apply
+    instMesh.setColorAt(i, col);
+  }
+  instMesh.instanceMatrix.needsUpdate=true;
+  if(instMesh.instanceColor) instMesh.instanceColor.needsUpdate=true;
+}
+setInstanceMatricesImmediate();
+
+// highlight mesh
+const hlGeo=new THREE.BoxGeometry(1.15,1.15,0.7);
+const hlMat=new THREE.MeshBasicMaterial({color:'#c9a86a', wireframe:true, transparent:true, opacity:.95});
+const hlMesh=new THREE.Mesh(hlGeo, hlMat); hlMesh.visible=false; scene.add(hlMesh);
+
+// raycasting
+const raycaster=new THREE.Raycaster(); const mouse=new THREE.Vector2();
+let hoveredIdx=-1, selectedIdx=-1;
+
+function updateVisibility(){
+  // just trigger full update
+  setInstanceMatricesImmediate();
+}
+document.getElementById('shineRange').addEventListener('input',e=>{
+  document.getElementById('shineLbl').textContent=e.target.value+'%';
+  setInstanceMatricesImmediate();
+});
+
+// view transitions
+const CAM_PRESETS={
+  world:{pos:[0,88,215], target:[0,7,0]},
+  coffret:{pos:[0,52,108], target:[0,5,0]},
+  matrice:{pos:[42,54,78], target:[0,9,0]},
+  plan:{pos:[0,172,0.2], target:[0,0,0]},
+  coupe:{pos:[138,34,6], target:[0,6,0]},
+  archi:{pos:[92,48,92], target:[0,8,0]}
+};
+let camFromPos=new THREE.Vector3().copy(camera.position);
+let camToPos=new THREE.Vector3().copy(camera.position);
+let targetFrom=new THREE.Vector3().copy(controls.target);
+let targetTo=new THREE.Vector3().copy(controls.target);
+let camLerp=1;
+
+function setView(view){
+  currentView=view;
+  document.querySelectorAll('.viewbar button').forEach(b=>b.classList.toggle('active', b.dataset.view===view));
+  document.getElementById('statZoom').textContent=view.toUpperCase();
+  // breadcrumb
+  const map={world:0, coffret:1, matrice:3, plan:3, coupe:4, archi:3};
+  // set breadcrumb active
+  document.querySelectorAll('.breadcrumb span').forEach((s,i)=>{
+    s.classList.toggle('active', i===map[view]);
+  });
+  // choose target positions
+  let tPos;
+  if(view==='world') tPos=posWorld;
+  else if(view==='coffret') tPos=posCyl;
+  else if(view==='matrice') tPos=posCyl;
+  else if(view==='plan') tPos=posPlan;
+  else if(view==='coupe') tPos=posCoupe;
+  else if(view==='archi') tPos=posArchi;
+  targetPos=tPos;
+  lerpT=0;
+  // camera
+  const preset=CAM_PRESETS[view] || CAM_PRESETS.world;
+  camFromPos.copy(camera.position); camToPos.set(...preset.pos);
+  targetFrom.copy(controls.target); targetTo.set(...preset.target);
+  camLerp=0;
+  // coffret open logic
+  let targetOpen= (view==='world'?0: view==='coffret'?0.45: 1);
+  // animate coffret open via range
+  animateCoffTo(targetOpen);
+}
+
+let coffTarget=0;
+function animateCoffTo(v){ coffTarget=v; }
+
+function updateCoffret(dt){
+  coffOpen+= (coffTarget - coffOpen)* dt*2.2;
+  lidPivot.rotation.x= -coffOpen * Math.PI*0.52; // open
+  // magazines rise and fan
+  magMeshes.forEach((m,i)=>{
+    let base=m.userData.basePos;
+    let prog=coffOpen;
+    let up= prog* (6 + i*1.1);
+    let fanAng= prog* ( (i%2?0.55:-0.55) + (Math.floor(i/2)?0.35:-0.35) );
+    let spread= prog* ( (i%2?9:-9) + (i>1?4:-4) );
+    m.position.y= base.y + up;
+    m.position.x= base.x + spread*0.55;
+    m.position.z= base.z + (i%2? prog*2: -prog*2);
+    m.rotation.y= base.y*0 + fanAng;
+    m.rotation.x= -prog*0.28;
+  });
+  document.getElementById('coffRange').value=Math.round(coffOpen*100);
+  document.getElementById('coffLbl').textContent= (coffOpen<0.05?'FERMÉ': coffOpen>0.92?'OUVERT':'OUVERT '+Math.round(coffOpen*100)+'%');
+}
+
+// lerp matrices each frame
+let breathe=false, breatheT=0;
+function animateMatrices(dt){
+  if(lerpT<1){
+    lerpT=Math.min(1, lerpT+ dt*1.25);
+    let e= 1 - Math.pow(1-lerpT,3); // easeOutCubic
+    for(let i=0;i<instCount;i++){
+      curPos[i].lerpVectors( (lerpT===e? curPos[i]: null) , targetPos[i], e); // but we need from start
+      // Actually need startPos array; use temp
+    }
+    // we stored incorrect; redo with startPos
+  }
+}
+// need startPos tracking
+let startPos=posWorld.map(v=>v.clone());
+function triggerLerp(){
+  startPos=curPos.map(v=>v.clone());
+  lerpT=0;
+}
+ // override setView to store start
+const _origSetView=setView;
+setView=function(view){
+  // store start
+  startPos=curPos.map(v=>v.clone());
+  currentView=view;
+  document.querySelectorAll('.viewbar button').forEach(b=>b.classList.toggle('active', b.dataset.view===view));
+  document.getElementById('statZoom').textContent=view.toUpperCase();
+  const map={world:0, coffret:1, matrice:3, plan:3, coupe:4, archi:3};
+  document.querySelectorAll('.breadcrumb span').forEach((s,i)=> s.classList.toggle('active', i===map[view]));
+  let tPos;
+  if(view==='world') tPos=posWorld;
+  else if(view==='coffret') tPos=posCyl;
+  else if(view==='matrice') tPos=posCyl;
+  else if(view==='plan') tPos=posPlan;
+  else if(view==='coupe') tPos=posCoupe;
+  else if(view==='archi') tPos=posArchi;
+  targetPos=tPos;
+  lerpT=0;
+  const preset=CAM_PRESETS[view] || CAM_PRESETS.world;
+  camFromPos.copy(camera.position); camToPos.set(...preset.pos);
+  targetFrom.copy(controls.target); targetTo.set(...preset.target);
+  camLerp=0;
+  let targetOpen= (view==='world'?0: view==='coffret'?0.35: 1);
+  animateCoffTo(targetOpen);
+};
+
+// initial view world then after load go to coffret
+document.querySelectorAll('.viewbar button').forEach(b=> b.addEventListener('click',()=> triggerView(b.dataset.view)));
+function triggerView(v){
+  startPos=curPos.map(c=>c.clone());
+  _origSetView(v); // but we redefined setView, so call redefined logic; simplify call setView via stored
+  // actually call the redefined setView's inner without recursion
+}
+ // fix: redefine again unified
+function goView(v){
+  startPos=curPos.map(c=>c.clone());
+  currentView=v;
+  document.querySelectorAll('.viewbar button').forEach(b=>b.classList.toggle('active', b.dataset.view===v));
+  document.getElementById('statZoom').textContent=v.toUpperCase();
+  const map={world:0, coffret:1, matrice:3, plan:3, coupe:4, archi:3};
+  document.querySelectorAll('.breadcrumb span').forEach((s,i)=> s.classList.toggle('active', i===map[v]));
+  let tPos;
+  if(v==='world') tPos=posWorld;
+  else if(v==='coffret') tPos=posCyl;
+  else if(v==='matrice') tPos=posCyl;
+  else if(v==='plan') tPos=posPlan;
+  else if(v==='coupe') tPos=posCoupe;
+  else if(v==='archi') tPos=posArchi;
+  targetPos=tPos; lerpT=0;
+  const preset=CAM_PRESETS[v]; camFromPos.copy(camera.position); camToPos.set(...preset.pos); targetFrom.copy(controls.target); targetTo.set(...preset.target); camLerp=0;
+  animateCoffTo(v==='world'?0: v==='coffret'?0.38:1);
+}
+document.querySelectorAll('.viewbar button').forEach(b=> b.onclick=()=> goView(b.dataset.view));
+document.querySelectorAll('.breadcrumb span').forEach(s=> s.onclick=()=>{ const m={world:'world', coffret:'coffret', mag:'matrice', matrice:'matrice', cell:'plan', contenu:'coupe'}; let k=s.dataset.l; if(m[k]) goView(m[k]);});
+
+// timeline
+const tlRange=document.getElementById('tlRange');
+const tlCanvas=document.getElementById('tlCanvas');
+const tlCtx=tlCanvas.getContext('2d');
+function drawTL(){
+  const w=tlCanvas.width, h=tlCanvas.height;
+  tlCtx.clearRect(0,0,w,h);
+  // draw density per day as vertical bars
+  for(let d=1; d<=365; d++){
+    let cnt=0; for(let hh=0; hh<24; hh++){ let idx=(d-1)*24+hh; if(dataset[idx].hasContent) cnt++; }
+    let x=(d/365)*w;
+    let hh=(cnt/24)*18;
+    let se=seasonOf(d-1); tlCtx.fillStyle=se.color; tlCtx.globalAlpha=.9;
+    tlCtx.fillRect(x, h-hh, Math.max(1,w/365), hh);
+  }
+  // indicator
+  let cur=parseInt(tlRange.value); let x=(cur/365)*w;
+  tlCtx.globalAlpha=1; tlCtx.fillStyle='#1a1816'; tlCtx.fillRect(x-1,0,2,h);
+  // highlight season
+  tlCtx.strokeStyle='rgba(0,0,0,.08)'; tlCtx.strokeRect(0,0,w,h);
+}
+drawTL();
+tlRange.addEventListener('input',e=>{
+  let v=parseInt(e.target.value);
+  document.getElementById('tlDay').textContent=`Jour ${v} — ${new Date(2024,0,v).toLocaleDateString('fr-FR',{day:'2-digit', month:'short'})}`;
+  document.getElementById('tlEd').textContent=`${v} / 365`;
+  let se=seasonOf(v-1); document.getElementById('tlSeason').textContent=se.label+' · 24 moments';
+  document.getElementById('tlSeason').style.color=se.color;
+  drawTL();
+  highlightDay(v);
+});
+function highlightDay(day){
+  // dim all except column
+  for(let i=0;i<instCount;i++){
+    let d=dataset[i];
+    let isDay=d.day===day;
+    dummy.position.copy(curPos[i]);
+    if(currentView==='matrice' || currentView==='coffret' || currentView==='world'){
+      dummy.lookAt(0,dummy.position.y,0); dummy.rotateY(Math.PI);
+    } else dummy.rotation.set(-Math.PI/2,0,0);
+    let visible= activeMedia.has(d.media);
+    let s= visible? (isDay?1.22:0.62):0.01;
+    if(!d.hasContent && !isDay) s*=0.5;
+    dummy.scale.set(s,s,s*0.85);
+    dummy.updateMatrix(); instMesh.setMatrixAt(i,dummy.matrix);
+    let col=new THREE.Color(d.dmc.hex);
+    if(!isDay) col.lerp(new THREE.Color('#ffffff'), .45).multiplyScalar(.72);
+    else col.multiplyScalar(1.12);
+    if(!d.hasContent) col.lerp(new THREE.Color('#e8e0d3'), .5);
+    instMesh.setColorAt(i,col);
+  }
+  instMesh.instanceMatrix.needsUpdate=true; instMesh.instanceColor.needsUpdate=true;
+}
+document.getElementById('coffRange').addEventListener('input',e=>{ coffTarget= e.target.value/100; document.getElementById('coffLbl').textContent= e.target.value<5?'FERMÉ':'OUVERT '+e.target.value+'%';});
+document.getElementById('respBtn').onclick=(e)=>{
+  breathe=!breathe; e.target.textContent= breathe?'Ondulation active — désactiver':'Activer ondulation'; e.target.style.background= breathe?'#1a1816':'transparent'; e.target.style.color=breathe?'#fff':'#1a1816';
+};
+
+// hover & click
+const tooltip=document.getElementById('tooltip');
+renderer.domElement.addEventListener('mousemove',ev=>{
+  mouse.x=(ev.clientX/innerWidth)*2-1; mouse.y=-(ev.clientY/innerHeight)*2+1;
+  raycaster.setFromCamera(mouse,camera);
+  const inter=raycaster.intersectObject(instMesh);
+  if(inter.length>0){
+    let idx=inter[0].instanceId; if(idx!==undefined){
+      hoveredIdx=idx; let d=dataset[idx];
+      hlMesh.visible=true; hlMesh.position.copy(curPos[idx]);
+      // copy rotation of instance
+      if(currentView==='plan' || currentView==='coupe' || currentView==='archi'){
+        hlMesh.rotation.set(-Math.PI/2,0,0);
+      } else {
+        hlMesh.lookAt(0, hlMesh.position.y,0); hlMesh.rotateY(Math.PI);
+      }
+      tooltip.classList.add('on');
+      tooltip.style.left=ev.clientX+'px'; tooltip.style.top=ev.clientY+'px';
+      let mediaObj=MEDIA.find(m=>m.id===d.media);
+      tooltip.innerHTML=`<b>${mediaObj.icon} ${mediaObj.label.toUpperCase()}</b> · Jour ${d.day} · ${String(d.hour).padStart(2,'0')}h<br><span style="opacity:.7">${seasonOf(d.day-1).label} · ${d.dmc.code} · densité ${(d.density*100).toFixed(0)}%</span><br><span style="font-size:9px;opacity:.6">${d.hasContent?'● Contenu réel disponible':'○ Heure creuse — archive'}</span>`;
+      document.body.style.cursor='pointer';
+    }
+  } else {
+    hoveredIdx=-1; hlMesh.visible=false; tooltip.classList.remove('on'); document.body.style.cursor='grab';
+  }
+});
+renderer.domElement.addEventListener('click',()=>{
+  if(hoveredIdx>=0){
+    selectedIdx=hoveredIdx; showDetail(selectedIdx);
+    // semantic zoom to cell
+    let pos=curPos[selectedIdx].clone();
+    // animate camera toward cell but keep offset
+    camFromPos.copy(camera.position); camToPos.copy(pos).add(new THREE.Vector3(10,14,10));
+    targetFrom.copy(controls.target); targetTo.copy(pos);
+    camLerp=0;
+    document.getElementById('statSel').textContent=`J${dataset[selectedIdx].day}·${String(dataset[selectedIdx].hour).padStart(2,'0')}h`;
+  }
+});
+function showDetail(idx){
+  const d=dataset[idx];
+  const se=seasonOf(d.day-1);
+  const mediaObj=MEDIA.find(m=>m.id===d.media);
+  const card=document.getElementById('detailCard');
+  const intro=document.getElementById('introCard');
+  intro.style.display='none'; card.classList.add('on');
+  // generate placeholder image canvas
+  const imgC=document.createElement('canvas'); imgC.width=600; imgC.height=340; const g=imgC.getContext('2d');
+  g.fillStyle='#fffdf7'; g.fillRect(0,0,600,340);
+  g.fillStyle=d.dmc.hex; g.fillRect(0,0,600,88);
+  g.fillStyle='#fff'; g.font='700 12px Inter'; g.textAlign='center'; g.fillText(`WORLD WEDDING MAGAZINE  —  ÉDITION ${d.day}`,300,42);
+  g.fillStyle='#1a1816'; g.font='600 22px Playfair Display'; g.textAlign='center'; g.fillText(`${se.label} · ${String(d.hour).padStart(2,'0')}:00 — ${mediaObj.label}`,300,132);
+  g.fillStyle='rgba(26,24,22,.55)'; g.font='italic 14px Cormorant Garamond'; g.fillText(`Moment ${d.hour+1}/24 · ${d.dmc.code} ${d.dmc.name}`,300,158);
+  // decorative
+  g.strokeStyle=d.dmc.hex; g.lineWidth=1; g.strokeRect(22,22,556,296);
+  g.fillStyle=d.dmc.hex; g.font='28px serif'; g.fillText(mediaObj.icon,300,200);
+  g.fillStyle='rgba(26,24,22,.45)'; g.font='12px Inter'; g.fillText(d.hasContent?'Contenu réel indexé depuis le site existant':'Créneau sans contenu — structure préservée',300,228);
+  // waveform for musique
+  if(d.media==='musique'){
+    g.strokeStyle='#a63d40'; g.lineWidth=2; g.beginPath();
+    for(let x=60;x<540;x+=8){ let y=260+ Math.sin(x*0.04+d.day)*18* d.density; if(x===60) g.moveTo(x,y); else g.lineTo(x,y); } g.stroke();
+  } else if(d.media==='photo'){
+    g.fillStyle='rgba(201,168,106,.18)'; g.fillRect(60,240,480,38);
+    g.fillStyle='rgba(26,24,22,.35)'; g.font='10px JetBrains Mono'; g.fillText('◈ PHOTO · mosaïque éditoriale',300,262);
+  }
+  let dataUrl=imgC.toDataURL();
+  card.innerHTML=`
+    <img src="${dataUrl}" alt="">
+    <h5>${mediaObj.icon} Édition ${d.day} — ${String(d.hour).padStart(2,'0')}h · ${mediaObj.label}</h5>
+    <p>${d.hasContent
+      ? `Ce créneau contient un <b>${mediaObj.label.toLowerCase()}</b> réel du magazine. Couleur DMC <b>${d.dmc.code}</b> (${d.dmc.name}) — saison ${se.label}. Densité éditoriale ${(d.density*100).toFixed(0)}%.`
+      : `Créneau d’archive sans média publié — la structure 24h est conservée pour la vérité de la matrice.`}
+      <br><em style="font-size:11px;opacity:.6">Source : lecture seule du renderer existant · 365 éditions · 24 moments.</em>
+    </p>
+    <div class="meta"><span>${d.dmc.code}</span><span>${se.label}</span><span>Densité ${Math.round(d.density*100)}%</span><span>${d.hasContent?'● INDEXÉ':'○ VIDE'}</span></div>
+    <button class="btn-gold" onclick="window.open('https://worldweddingmagazine.com','_blank')">Ouvrir dans le magazine →</button>
+    <button class="btn-ghost" id="closeDetail">Fermer</button>
+  `;
+  card.querySelector('#closeDetail').onclick=()=>{ card.classList.remove('on'); intro.style.display='block'; document.getElementById('statSel').textContent='—';};
+  card.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+// loading simulation
+let load=0; const lb=document.getElementById('loadBar'), lt=document.getElementById('loadTxt');
+let loadInt=setInterval(()=>{
+  load+= Math.random()*18+6; if(load>=100){ load=100; clearInterval(loadInt); setTimeout(()=>{
+    document.getElementById('loading').classList.add('out');
+    goView('coffret'); // start at coffret after intro
+  }, 480);}
+  lb.style.width=load+'%'; lt.textContent= load<40?'Tissage broderie déterministe…': load<75?'Calcul 8 760 cellules…':'Ouverture du coffret…';
+}, 120);
+
+// animation loop
+let last=performance.now();
+function tick(){
+  requestAnimationFrame(tick);
+  let now=performance.now(); let dt=Math.min(0.033, (now-last)/1000); last=now;
+  // lerp matrices
+  if(lerpT<1){
+    lerpT=Math.min(1, lerpT+ dt*1.18);
+    let e=1 - Math.pow(1-lerpT,3);
+    for(let i=0;i<instCount;i++){
+      curPos[i].lerpVectors(startPos[i], targetPos[i], e);
+      // update matrices with breathing optionally
+      let yAdd=0;
+      if(breathe){
+        breatheT+= dt*1.2;
+        yAdd= Math.sin(breatheT*2 + dataset[i].day*0.14 + dataset[i].hour*0.6)*0.28* dataset[i].density;
+      }
+      dummy.position.copy(curPos[i]); dummy.position.y+= yAdd;
+      if(currentView==='plan' || currentView==='coupe'){
+        dummy.rotation.set(-Math.PI/2,0,0);
+      } else if(currentView==='archi'){
+        // keep flat but oriented to wall
+        dummy.rotation.set(0,0,0);
+      } else {
+        dummy.lookAt(0, dummy.position.y,0); dummy.rotateY(Math.PI);
+      }
+      let d=dataset[i]; let visible= activeMedia.has(d.media);
+      let s= visible? (d.hasContent?1:0.52):0.01;
+      dummy.scale.set(s,s,s*0.85);
+      dummy.updateMatrix(); instMesh.setMatrixAt(i, dummy.matrix);
+      let col=new THREE.Color(d.dmc.hex);
+      if(!d.hasContent) col.lerp(new THREE.Color('#e8e0d3'), .6);
+      instMesh.setColorAt(i,col);
+    }
+    instMesh.instanceMatrix.needsUpdate=true; instMesh.instanceColor.needsUpdate=true;
+  } else if(breathe){
+    breatheT+= dt*1.2;
+    for(let i=0;i<instCount;i++){
+      dummy.position.copy(curPos[i]); dummy.position.y+= Math.sin(breatheT*2 + dataset[i].day*0.14 + dataset[i].hour*0.6)*0.28* dataset[i].density;
+      if(currentView==='plan' || currentView==='coupe') dummy.rotation.set(-Math.PI/2,0,0);
+      else { dummy.lookAt(0,dummy.position.y,0); dummy.rotateY(Math.PI); }
+      let d=dataset[i]; let s= activeMedia.has(d.media)? (d.hasContent?1:0.52):0.01;
+      dummy.scale.set(s,s,s*0.85); dummy.updateMatrix(); instMesh.setMatrixAt(i, dummy.matrix);
+    }
+    instMesh.instanceMatrix.needsUpdate=true;
+  }
+
+  // camera lerp
+  if(camLerp<1){
+    camLerp=Math.min(1, camLerp+ dt*1.15);
+    let e=1 - Math.pow(1-camLerp,3);
+    camera.position.lerpVectors(camFromPos, camToPos, e);
+    controls.target.lerpVectors(targetFrom, targetTo, e);
+  }
+  // semantic zoom label from distance
+  let dist=camera.position.distanceTo(controls.target);
+  let label= dist>160? 'WORLD' : dist>95? 'COFFRET' : dist>58? 'MAGAZINE' : dist>32? 'MATRICE' : dist>14? 'CELLULE' : 'CONTENU';
+  document.getElementById('statZoom').textContent=label;
+  // pz rotation
+  coreGroup.rotation.y+= dt*0.22;
+  pzGroup.rotation.y+= dt*0.05;
+  rings.forEach((r,i)=> r.rotation.z+= dt*(0.18+i*0.07));
+  point.intensity= 14 + Math.sin(now*0.0012)*3;
+  updateCoffret(dt);
+  controls.update();
+  renderer.render(scene,camera);
+}
+tick();
+
+window.addEventListener('resize',()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); drawTL();});
+
+// wheel semantic zoom stops
+let wheelLock=false;
+renderer.domElement.addEventListener('wheel',e=>{
+  if(wheelLock) return;
+  // infer direction to cycle views
+  let order=['world','coffret','matrice','plan','coupe','archi'];
+  let idx=order.indexOf(currentView);
+  if(e.deltaY>0 && idx<order.length-1){ wheelLock=true; goView(order[idx+1]); setTimeout(()=>wheelLock=false,900); }
+  else if(e.deltaY<0 && idx>0){ wheelLock=true; goView(order[idx-1]); setTimeout(()=>wheelLock=false,900); }
+},{passive:true});
+
+// tour guidée
+let tourTimer=null;
+document.getElementById('tourBtn').onclick=()=>{
+  const seq=['world','coffret','matrice','archi','plan','coupe','matrice'];
+  let i=0;
+  if(tourTimer) clearInterval(tourTimer);
+  goView(seq[0]);
+  tourTimer=setInterval(()=>{
+    i++; if(i>=seq.length){ clearInterval(tourTimer); tourTimer=null; return; }
+    goView(seq[i]);
+  }, 3200);
+};
+
+// init TL label
+tlRange.dispatchEvent(new Event('input'));
+
+</script>
+</body>
+</html>
